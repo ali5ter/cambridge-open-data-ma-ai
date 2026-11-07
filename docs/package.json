@@ -1,0 +1,15 @@
+{
+  "name": "cambridge-open-data-ma-ai-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VitePress docs and tutorials site for cambridge-open-data-ma-ai",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
+    "docs:clean": "vitepress build --clean"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}

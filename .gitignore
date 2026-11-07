@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+build/
+dist/
+
+# Data cache -- rebuildable, never committed
+data/
+
+# Secrets -- never commit; copy .env.template to .env and fill in
+.env
+
+# AI context -- private, tracked in the ai-context repo
+AGENTS.md
+CLAUDE.md
+
+# VitePress docs build (node deps + rendered output; keep .vitepress/config.mts)
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+
+# ruff cache
+.ruff_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

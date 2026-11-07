@@ -1,0 +1,9 @@
+# Private AI context -- gitignored, not part of the public docs surface
+AGENTS.md
+CLAUDE.md
+
+# VitePress build output and cache
+docs/.vitepress
+
+# Installed node dependencies (carry their own markdown)
+node_modules

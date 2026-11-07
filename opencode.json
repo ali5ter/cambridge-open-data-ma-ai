@@ -1,0 +1,14 @@
+{
+  "mcp": {
+    "servers": {
+      "cambridge-open-data-ma-ai": {
+        "type": "local",
+        "command": [
+          "uv",
+          "run",
+          "cambridge-open-data-ma-mcp"
+        ]
+      }
+    }
+  }
+}
