@@ -1,0 +1,50 @@
+/* Brand overrides for the Cambridge Open Data MA site.
+ *
+ * themeConfig.brandColor / fonts are no-ops in this VitePress 1.6 build, so we
+ * recolour by overriding the theme's CSS variables directly. This is the
+ * version-proof route: whatever VitePress version is installed, these variables
+ * are what the hero, buttons, links, and code blocks actually consume.
+ *
+ * Two-stop green. The logo's emerald (#34D399) is far too light to read on the
+ * white light-mode navbar, so light mode uses a deeper emerald of the same hue
+ * and dark mode keeps the logo's green verbatim.
+ *
+ * Type: a three-face pairing. Inter is the body/UI base (--vp-font-family-base);
+ * IBM Plex Mono is the code face (--vp-font-family-mono); Space Grotesk sets the
+ * titles. VitePress 1.6.4 has no --vp-font-family-heading variable, so the title
+ * surfaces are targeted directly below -- the same version-proof route as the
+ * colours above.
+ */
+:root {
+  /* light mode: deep emerald of the logo's hue, legible on white */
+  --vp-c-brand-1: #0e9f6e;
+  --vp-c-brand-2: #13b083;
+  --vp-c-brand-3: #0e9f6e;
+  --vp-c-brand-soft: rgba(14, 159, 110, 0.14);
+
+  --vp-font-family-base: 'Inter', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+  --vp-font-family-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+}
+
+.dark {
+  /* dark mode: the logo's exact emerald, which pops on the dark navbar */
+  --vp-c-brand-1: #34d399;
+  --vp-c-brand-2: #6ee7b7;
+  --vp-c-brand-3: #34d399;
+  --vp-c-brand-soft: rgba(52, 211, 153, 0.16);
+}
+
+/* Titles. Space Grotesk carries every heading surface while Inter carries the
+ * body and UI (the base variable above). Targeted directly because 1.6.4 has no
+ * heading font variable; the base variable is the fallback if Space Grotesk has
+ * not loaded yet. */
+.vp-doc h1,
+.vp-doc h2,
+.vp-doc h3,
+.vp-doc h4,
+.VPHomeHero h1,
+.VPFeature h2.title {
+  font-family: 'Space Grotesk', var(--vp-font-family-base);
+}

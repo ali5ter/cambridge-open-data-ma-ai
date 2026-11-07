@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cambridge Open Data MA">
+  <rect width="512" height="512" rx="112" fill="#2F3234"/>
+  <path d="M 330.6 362.5 A 130 130 0 1 1 330.6 149.5" fill="none" stroke="#F8FCFF" stroke-width="64" stroke-linecap="round"/>
+  <circle cx="378" cy="256" r="42" fill="#34D399"/>
+</svg>

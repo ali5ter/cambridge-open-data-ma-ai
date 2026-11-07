@@ -1,6 +1,6 @@
 {
   "name": "cambridge-open-data-ma-ai-docs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "VitePress docs and tutorials site for cambridge-open-data-ma-ai",
   "scripts": {

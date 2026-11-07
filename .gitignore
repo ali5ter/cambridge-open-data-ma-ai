@@ -16,10 +16,12 @@ data/
 AGENTS.md
 CLAUDE.md
 
-# VitePress docs build (node deps + rendered output; keep .vitepress/config.mts)
+# VitePress docs build (node deps + rendered output; keep .vitepress/config.mts).
+# The VitePress project lives in docs/, so the cache/output live under
+# docs/.vitepress/ -- a root-anchored pattern misses them, so pin the real path.
 node_modules/
-.vitepress/cache/
-.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
 
 # ruff cache
 .ruff_cache/
