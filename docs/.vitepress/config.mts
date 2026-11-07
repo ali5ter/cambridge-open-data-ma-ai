@@ -66,9 +66,12 @@ export default defineConfig({
 
     search: { provider: 'local' },
 
+    // VitePress 1.6's useEditLink reads only `text` and `pattern` (the legacy
+    // repo/docsDir/branch keys are ignored), so the GitHub edit URL is a
+    // `:path` template here -- without it the link degrades to a dead span.
     editLink: {
-      repo: 'ali5ter/cambridge-open-data-ma-ai',
-      docsDir: 'docs',
+      pattern:
+        'https://github.com/ali5ter/cambridge-open-data-ma-ai/edit/main/docs/:path',
       text: 'Edit this page',
     },
     lastUpdated: true,

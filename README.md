@@ -86,11 +86,20 @@ See [`docs/`](docs/) for the full tutorials and the gotchas that make the answer
 
 ## Configuration
 
-`secrets and per-machine state` live in `.env` — copy `.env.template` and fill in. The four
+Secrets and per-machine state live in `.env` — copy `.env.template` and fill in. The four
 `CAM_OPEN_DATA_*` credentials are optional; two storage overrides
 (`CAM_OPEN_DATA_CACHE_DIR`, `CAM_OPEN_DATA_REPORTS_DIR`) default to `<repo>/data` and
 `<repo>/docs/reports`. The opencode key and the `cambridge://` resource namespace are not
 environment variables — they are a client-side label, not a secret.
+
+## Updating the docs
+
+The website at <https://ali5ter.github.io/cambridge-open-data-ma-ai/> is built from `docs/`
+by VitePress; every push to `main` rebuilds and redeploys it automatically, so there is no
+manual "publish" step. To change the site, edit the Markdown in `docs/` and push — or click
+"Edit this page" on any live page to open its source file on GitHub. The root `README.md`
+is the GitHub project page, not part of the site build, so the two surfaces are edited
+independently.
 
 ## License
 
