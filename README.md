@@ -5,22 +5,32 @@ cross-reference, and infer insights from the
 [Cambridge MA Open Data Portal](https://data.cambridgema.gov); a Socrata portal with 280+ public
 datasets (budget, public safety, permitting, GIS/parcels, public health, schools, and more).
 
-This enables a natural-language question about Cambridge civic data and get back an answer built from
+This enables natural-language questions about Cambridge civic data and responses built from
 real cross-dataset analysis.
 
 ## What do you get?
 
-- **An MCP server** — `cambridge_data.mcp`, exposed as the `cambridge-open-data-ma-mcp` console
-  script: an 8-tool / 4-resource FastMCP (v1) server. It is the *agent-facing* interface, wrapping
-  the same shared library (`src/cambridge_data/`) that the five command-line scripts
-  (`refresh_catalog.py`, `search_catalog.py`, `fetch_dataset.py`, `report_to_pdf.py`, and the
-  `mcp_smoke.py` smoke test) call by hand — so an agent's MCP call and a human's CLI reach the same
-  answer, and the two never drift (**one source of truth**).
+- **An MCP server** — `cambridge_data.mcp` (console script `cambridge-open-data-ma-mcp`), the
+  *agent-facing* interface: eight tools and four resources an AI agent uses to discover, fetch,
+  cross-reference, and query the Portal.
+- **A CLI** — `cambridge-data`, the *human-facing* interface over the same shared library
+  (`src/cambridge_data/`): the eight tools as subcommands, so the agent path and the shell path are
+  one call set and the two never drift (**one source of truth**).
 - **A Skill** — `.claude/skills/cambridge-open-data/SKILL.md`, the *cognitive* interface: the
   discover → fetch → cross-reference → infer playbook plus the gotchas that keep the agent's answers
   trustworthy.
 - **Documentation** — `docs/` explaining how to install, configure, and use the Skill and the MCP
   server as complementary tools in your AI interaction with the Cambridge Open Data Portal.
+
+## Eight tools, four resources
+
+The server and the CLI expose the **same eight tools** — `refresh_catalog`, `search_datasets`,
+`describe_dataset`, `fetch_dataset`, `field_coverage`, `coverage_audit`, `list_cached_datasets`, and
+`query` — plus **four opencode-native resources** — `cambridge://catalog`,
+`cambridge://datasets/{id}`, `cambridge://reports`, and `cambridge://reports/{slug}`. The CLI
+subcommands are `refresh`, `search`, `describe`, `fetch`, `coverage`, `audit`, `cached`, `query`,
+`catalog`, and `reports`/`report`. Argument shapes, returns, and the CLI mirror are in
+[docs/reference.md](docs/reference.md).
 
 ## Install
 

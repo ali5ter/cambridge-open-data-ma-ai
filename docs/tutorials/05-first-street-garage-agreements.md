@@ -87,8 +87,23 @@ The portal does confirm the parcels and their linkage, independently of the docu
   `MIDDLESEX COUNTY OF` to `LMP GP HOLDINGS LLC`, and `18-75` as `CAMBRIDGE CITY OF` throughout —
   confirming the Garage remains City-owned, consistent with a leasehold rather than a sale.
 
+The garage-lease note — the only structured mention of it — is one `cambridge-data` call to pull:
+
+```bash
+cambridge-data search "development log"     # 5432-hmix, a5ud-8kjv
+cambridge-data fetch 5432-hmix
+cambridge-data query "SELECT * FROM ds_5432_hmix WHERE pb_special_permit = 'PB288'"
+```
+
+The address-geocoding and property-database checks above are the same `search` → `fetch` → `query`
+pattern over `4ftb-8ne5` and `eey2-rv59`. Note what all of this *doesn't* do: none of it retrieves
+the lease, the commitment letter, or the childcare promise — those live in the document trail, not
+the portal.
+
 ## What this tutorial demonstrates
 
+- The `cambridge-data` CLI pulling the *structured* corroboration (the garage-lease note, the
+  geocodes, the ownership transition) — the one thing the portal *can* carry.
 - **Civic agreements aren't portal data** — the #4 gotcha, and why a question like "what did the
   developer promise" can't be answered from Socrata.
 - **The three-instrument model** — special permit / disposition / floor amendment, each with a

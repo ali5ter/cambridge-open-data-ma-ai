@@ -1,9 +1,9 @@
 ---
 layout: home
 hero:
-  name: Cambridge Open Data MA
-  text: An MCP server and a Skill for civic-data analysis
-  tagline: Ask an AI agent a question about Cambridge civic data; get a grounded, cross-dataset answer.
+  name: Cambridge Open Data Portal Tools
+  text: An MCP server, an AI Skill, and Python scripts for civic-data analysis
+  tagline: Ask an AI agent a question about Cambridge civic data; get a cross-dataset answer.
   actions:
     - theme: brand
       text: Get started
@@ -14,38 +14,36 @@ hero:
 features:
   - title: Eight tools, four resources
     details: Discover, fetch, cross-reference, and query the Socrata portal as an MCP server.
-  - title: A Skill that stops wrong answers
-    details: Existence is not delivery; civic agreements aren't portal data; the recent-window trap.
-  - title: Six tutorials
-    details: Five grounded analyses, plus a how-to that drives the Skill in opencode.
+  - title: A Skill to help assist finding and interpretation
+    details: In combination with the MCP server, facilitates correct retrieval of data within the Portal and external sources linked from the Portal.
+  - title: Tutorials
+    details: Examples of how the Python scripts, and Skill have been used.
   - title: No credentials
-    details: Public dataset reads and catalog search work with no credentials at all.
+    details: Public dataset reads and catalog search work without credentials.
   - title: One source of truth
-    details: The server, the CLIs, and ad-hoc Python share a single library.
-  - title: SKIP-on-empty-cache
-    details: The smoke test runs on a fresh clone and exits 0; a populated cache yields 14/14.
+    details: The MCP server, the Skill, and Python scripts share a single library.
+  - title: Tests included
+    details: Smoke tests provided to verify whether the tooling works.
 ---
 
 The Cambridge MA Open Data Portal ([data.cambridgema.gov](https://data.cambridgema.gov)) is a
 Socrata instance with **280+ public datasets** — budget, public safety, permitting, GIS/parcels,
-public health, schools, and more. This project makes that data usable by an agent through two
+public health, schools, and more. This project makes that data usable by an AI agent through two
 complementary interfaces that ship as one unit:
 
 - **An MCP server** (`cambridge_data.mcp`, console script `cambridge-open-data-ma-mcp`) — the
-  *machine* interface: eight tools and four resources that an agent can call to discover, fetch,
-  cross-reference, and query the portal.
+  *machine* interface: eight tools and four resources that an AI agent can use to discover, fetch,
+  cross-reference, and query the Portal.
 - **A Skill** (`.claude/skills/cambridge-open-data/SKILL.md`) — the *cognitive* interface: the
-  discover → fetch → cross-reference → infer workflow plus the gotchas that stop a naive answer
-  (existence is not delivery; civic agreements aren't portal data; fields populated for only a
-  recent window).
+  discover → fetch → cross-reference → infer workflow working around know gotchas already found when working with with data in the Portal.
 
-The server wraps the same library the command-line tools call, so the harness and the CLI never
+The server wraps the same library the `cambridge-data` CLI calls, so the harness and the CLI never
 drift — **one source of truth** serves every entry point. Public dataset reads and catalog search
 work with **no credentials**.
 
 > [!TIP]
 > New here? Start with [Getting started](getting-started.md), then read the
-> [workflows](concepts.md) and the [gotchas](gotchas.md) before trusting any number the toolkit
+> [workflows](concepts.md) and the [gotchas](gotchas.md) before trusting any responses the toolkit
 > returns.
 
 ## What you can ask
@@ -91,7 +89,7 @@ docs/                      this site
   reference.md             the 8 tools and 4 resources
   configuration.md         .env, cache/reports directories
   tutorials/               the five worked use-cases plus a harness how-to
-src/cambridge_data/        the library + the MCP server (one source of truth)
-scripts/                   thin CLIs, one per operation
+src/cambridge_data/        the library + the MCP server + the cambridge-data CLI (one source of truth)
+scripts/                   per-operation helpers (by-hand equivalents of cambridge-data)
 opencode.json              the shareable server registration
 ```

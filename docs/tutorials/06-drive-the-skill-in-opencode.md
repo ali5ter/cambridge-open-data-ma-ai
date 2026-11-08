@@ -66,6 +66,26 @@ LIMIT 3
 For FY2027 both budget datasets are fully populated, so the join is clean — but the *habit* of running
 the coverage check is what generalises to a dataset that isn't.
 
+**The same loop, by hand.** Each tool call above is one `cambridge-data` subcommand —
+`refresh_catalog` → `refresh`, `search_datasets` → `search`, `fetch_dataset` → `fetch`, `query` →
+`query`, `coverage_audit` → `audit` — so the agent's sequence is also a shell session:
+
+```bash
+cambridge-data refresh
+cambridge-data search "budget salaries"
+cambridge-data search "operating expenditure"
+cambridge-data fetch ixg8-tyau
+cambridge-data fetch 5bn4-5wey
+cambridge-data audit ixg8-tyau        # the coverage guard, by hand
+cambridge-data query "SELECT s.department, COUNT(*) positions,
+    ROUND(SUM(TRY_CAST(s.total_salary AS DOUBLE))) salary
+  FROM ds_ixg8_tyau s GROUP BY 1 ORDER BY 3 DESC LIMIT 3"
+```
+
+That is the point of sharing one library: the harness's `refresh_catalog → search_datasets →
+fetch_dataset → query → coverage_audit` and this shell session are the same calls over
+`cambridge_data`, so they cannot drift.
+
 ## 4. The answer
 
 The agent answers in chat (the default output mode) with the top salary departments and their operating
@@ -78,6 +98,8 @@ in full; this one shows the *loop* that produces them.
 - The MCP server doing the work — `refresh_catalog → search_datasets → fetch_dataset → query →
   coverage_audit` — driven from a harness rather than typed by hand.
 - Delivering the Skill to a harness so the gotchas run *for* the agent, not just for you.
+- **By hand, too.** The same sequence is five `cambridge-data` subcommands, so the agent path and the
+  shell path are one call set.
 - Why "one source of truth" matters: the harness, the CLI, and ad-hoc Python all reach the same answer
   because they share `cambridge_data`.
 

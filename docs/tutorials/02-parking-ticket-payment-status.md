@@ -21,11 +21,17 @@ with client.SodaClient() as soda:
                       where="amount_due IS NOT NULL AND ticket_issue_date >= '2025-07-01T00:00:00.000'")
 ```
 
+This is the one step the `cambridge-data` CLI does **not** cover: its `query` subcommand runs
+DuckDB over the *cached* `ds_*` views, not live SODA, so a 3M-row dataset is pulled live with
+`SodaClient` rather than cached. Every other step here is a `cambridge-data` subcommand.
+
 ## Step 1 — check the field before you trust it
 
-The naive path is to `SUM(amount_due)` and call it "revenue lost." Stop. Run the guard first —
-through the MCP server, `coverage_audit("vnxa-cuyr")` flags every partial field; through Python,
-check population and window:
+The naive path is to `SUM(amount_due)` and call it "revenue lost." Stop. Run the guard first. For a
+*cached* dataset that is `cambridge-data audit <id>` (every field, least-populated first) or
+`cambridge-data coverage <id> --field <f>` (one field) — the `coverage_audit` and `field_coverage`
+tools by another name. Here `vnxa-cuyr` is queried live, not cached, so the same check runs against
+the live pull in Python: check population and window:
 
 ```sql
 -- population: how many rows carry the field at all?
@@ -71,8 +77,10 @@ the Parking Clerk's office.
 
 - The **recent-window trap**: a field present in the schema, populated for 4.8% of rows, meaning
   something other than the column name implies.
-- **Check population and window before trusting a total** — the `coverage_audit` / `field_coverage`
-  guards exist for exactly this.
+- **Check population and window before trusting a total** — the `coverage` / `audit` subcommands
+  (`coverage_audit` / `field_coverage` through the server) exist for exactly this.
+- **The one Python step.** A 3M-row dataset is pulled live via `SodaClient`; the `cambridge-data`
+  CLI's `query` is cache-only, so live SODA stays in Python.
 - **An honest "can't answer" is a valid answer.** The toolkit's value includes telling you when the
   data can't carry a claim, and pointing you to where the real data lives.
 

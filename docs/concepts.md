@@ -1,7 +1,7 @@
 # Concepts
 
-The toolkit is one library driving three entry points — the CLIs, the MCP server, and ad-hoc
-Python — over a small pipeline:
+The toolkit is one library driving three entry points — the `cambridge-data` CLI, the MCP
+server, and ad-hoc Python — over a small pipeline:
 
 ```text
 Socrata Discovery API  --refresh_catalog-->  data/catalog.parquet   (searchable dataset index)
@@ -21,11 +21,11 @@ This is the sequence the Skill drives and the MCP tools expose, one tool per ste
 Search the local catalog cache first — it is instant and offline, and covers name, description,
 category, and tags:
 
-- CLI: `uv run scripts/search_catalog.py "<keyword>"`
+- CLI: `cambridge-data search "<keyword>"`
 - MCP: the `search_datasets` tool
 
-If the cache is missing or looks stale, refresh it (`refresh_catalog.py` / `refresh_catalog`; a
-few seconds, ~280 rows). Read the printed `columns_field_name` metadata before fetching — it tells
+If the cache is missing or looks stale, refresh it (`cambridge-data refresh` / the
+`refresh_catalog` tool; a few seconds, ~280 rows). Read the printed `columns_field_name` metadata before fetching — it tells
 you field names and types without pulling data. The catalog also exposes
 `cambridge://catalog` and `cambridge://datasets/{id}` as MCP resources, so a harness can browse
 without a tool call.
@@ -34,7 +34,7 @@ without a tool call.
 
 Pull a dataset's full contents into the local Parquet cache:
 
-- CLI: `uv run scripts/fetch_dataset.py <dataset-id>`
+- CLI: `cambridge-data fetch <dataset-id>`
 - MCP: the `fetch_dataset` tool
 
 `fetch_dataset` is idempotent — re-running it overwrites that dataset's cache and records the fetch

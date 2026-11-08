@@ -26,9 +26,18 @@ and *what are the rules* almost not at all:
 
 ## Step 1 — discover the spatial layer
 
-`search_catalog.py "open space"` surfaces `88i7-ga9f` (Open Space, 249 polygons). Its `OWNER`
-field breaks down as City 104, State 77, **Private 39**, Easement 1, and others. The `FCODE`
-field classifies 28 of the 40 Private/Easement rows as publicly-accessible-by-design (codes 41–45).
+`cambridge-data search "open space"` surfaces `88i7-ga9f` (Open Space, 249 polygons). Read its
+schema — the machine field names a query accepts, plus the `the_geom` geometry column — and cache it:
+
+```bash
+cambridge-data search "open space"
+cambridge-data describe 88i7-ga9f --probe
+cambridge-data fetch 88i7-ga9f
+```
+
+The `owner` field breaks down as City 104, State 77, **Private 39**, Easement 1, and others. The
+`fcode` field classifies 28 of the 40 Private/Easement rows as publicly-accessible-by-design
+(codes 41–45).
 
 > **Gotcha — undocumented codes.** The `FCODE` decode table lives only as an *embedded JPEG* on a
 > GIS Data Dictionary page, and even that omits codes present in the data (13, 45). Decode it from
@@ -46,6 +55,12 @@ FROM ds_88i7_ga9f
 WHERE owner IN ('Private', 'Easement')
 ORDER BY TRY_CAST(fcode AS INT), name;
 ```
+
+The `cambridge-data query` subcommand can't run this: it executes a single `SELECT` over the cached
+`ds_*` views and does not `INSTALL spatial`, so geometry work opens its own connection with
+`warehouse.connect()` and runs the statement above. (The same reason the 3M-row live pull in
+[tutorial 2](02-parking-ticket-payment-status.md) stays in Python — the CLI's `query` is
+cache-only and non-spatial.)
 
 ## Step 3 — join to permits (and hit the naming traps)
 
@@ -104,6 +119,8 @@ at a dead URL path (`SpecialPermits` → `specialpermitsadvisory`).
 
 ## What this tutorial demonstrates
 
+- The `cambridge-data` CLI doing discovery and caching (`search` / `describe` / `fetch`), with the
+  spatial and scanned-PDF steps it can't cover left in Python.
 - **Spatial discovery** across datasets that don't key off each other — the toolkit's signature
   capability, and why a *zoning-layer sweep* beats a keyword grep for "find every X."
 - The **Finding-vs-Condition** judgment: a space mentioned in reasoning is not a space you can

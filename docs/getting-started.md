@@ -1,8 +1,8 @@
 # Getting started
 
 This page walks through a single cross-dataset question end-to-end, both ways — with the MCP
-server (what an agent does) and with the CLI (what a human does). The two share one library, so
-they reach the same answer. The question:
+server (what an agent does) and with the `cambridge-data` CLI (what a human does). The two share one
+library, so they reach the same answer. The question:
 
 > **Which Cambridge departments spent the most on salaries in the FY2027 budget, and how does that
 > line up with their operating budget?**
@@ -16,7 +16,7 @@ The catalog is the searchable index of all 280+ datasets, cached locally so disc
 and offline. Pull it first:
 
 ```bash
-uv run scripts/refresh_catalog.py
+cambridge-data refresh
 ```
 
 Through the MCP server, the same step is the `refresh_catalog` tool, which returns the row count
@@ -27,7 +27,7 @@ and the cache path.
 Search the cache by keyword. This matches name, description, category, and tags:
 
 ```bash
-uv run scripts/search_catalog.py "budget salaries"
+cambridge-data search "budget salaries"
 ```
 
 The output is each result's **id** (a Socrata four-by-four like `ixg8-tyau`), its name, its
@@ -45,7 +45,7 @@ Before pulling data, read the full schema and coverage of a dataset — it tells
 types, and update cadence without downloading a thing:
 
 ```bash
-uv run python -c "from cambridge_data.catalog import get; import json; print(json.dumps(get('ixg8-tyau'), indent=2))"
+cambridge-data describe ixg8-tyau --probe
 ```
 
 Through the MCP server this is the `describe_dataset` tool (with `probe=true` for a coverage
@@ -58,23 +58,15 @@ Pull the two datasets into the Parquet cache, then cross-reference them in SQL. 
 Parquet directly, so the cache *is* the warehouse — there is no separate database to keep in sync:
 
 ```bash
-uv run scripts/fetch_dataset.py ixg8-tyau
-uv run scripts/fetch_dataset.py 5bn4-5wey
-```
-
-```python
-from cambridge_data import warehouse
-
-con = warehouse.connect()
-con.sql("""
-    SELECT s.department,
-           COUNT(*)                                   AS positions,
-           ROUND(SUM(TRY_CAST(s.total_salary AS DOUBLE))) AS salary
-    FROM ds_ixg8_tyau AS s
-    GROUP BY 1
-    ORDER BY 3 DESC
-    LIMIT 3
-""")
+cambridge-data fetch ixg8-tyau
+cambridge-data fetch 5bn4-5wey
+cambridge-data query "SELECT s.department AS department,
+    COUNT(*) AS positions,
+    ROUND(SUM(TRY_CAST(s.total_salary AS DOUBLE))) AS salary
+  FROM ds_ixg8_tyau AS s
+  GROUP BY 1
+  ORDER BY 3 DESC
+  LIMIT 3"
 ```
 
 Each cached dataset becomes a DuckDB view named `ds_<id_with_underscores>` — `ixg8-tyau` becomes

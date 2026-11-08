@@ -1,10 +1,10 @@
 # Reference
 
 The MCP server (`cambridge_data.mcp`, console script `cambridge-open-data-ma-mcp`) exposes **8
-tools** and **4 resources**. Each tool delegates to the same library function a CLI calls, so the
-server and the CLI never drift. The server holds no state of its own — each call opens a fresh
-DuckDB connection over `data/raw/*.parquet`, so it reflects the cache as of the call and honours
-the "no separate warehouse to keep in sync" design.
+tools** and **4 resources**. Each tool delegates to the same library function the `cambridge-data`
+CLI calls, so the server and the CLI never drift. The server holds no state of its own — each call
+opens a fresh DuckDB connection over `data/raw/*.parquet`, so it reflects the cache as of the call
+and honours the "no separate warehouse to keep in sync" design.
 
 Run it over stdio (the transport opencode and the other harnesses launch it with):
 
@@ -12,6 +12,33 @@ Run it over stdio (the transport opencode and the other harnesses launch it with
 uv run cambridge-open-data-ma-mcp
 # or: uv run python -m cambridge_data.mcp
 ```
+
+## The CLI mirror
+
+The `cambridge-data` console script (installed by `uv sync`, alongside the
+`cambridge-open-data-ma-mcp` server) is the same eight tools and four resources as a human-facing
+CLI — one subcommand per tool, plus `catalog`, `reports`, and `report` for the opencode-native
+resources, and a global `--json` (`-j`) on every subcommand that pipes the result as JSON-native
+rows instead of a Rich table.
+
+| Subcommand | Tool / resource | Flags |
+|---|---|---|
+| `refresh` | `refresh_catalog` | — |
+| `search KEYWORD` | `search_datasets` | `--limit` (20) |
+| `describe DATASET_ID` | `describe_dataset` | `--probe`, `--top` (10) |
+| `fetch DATASET_ID` | `fetch_dataset` | `--where`, `--select` |
+| `coverage DATASET_ID` | `field_coverage` | `--field` (required), `--date-field` |
+| `audit DATASET_ID` | `coverage_audit` | `--threshold` (99.0), `--top` (10) |
+| `cached` | `list_cached_datasets` | — |
+| `query SQL` | `query` | `--limit` (1000) |
+| `catalog` | `cambridge://catalog` | `--limit` (50) |
+| `reports` | `cambridge://reports` | — |
+| `report SLUG` | `cambridge://reports/{slug}` | — |
+
+The eight tools map one-to-one onto the first eight rows; the four resources map onto `catalog`,
+`describe`, `reports`, and `report` — `describe` doubles as the `cambridge://datasets/{id}` reader.
+Every subcommand exits `0` on success, `1` on a handled error, `130` on Ctrl-C, and `2` on a usage
+error; append `--json` to machine-parse the same result.
 
 ## Tools
 

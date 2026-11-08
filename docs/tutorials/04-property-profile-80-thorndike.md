@@ -25,10 +25,15 @@ value nearly doubled over eleven years, from $850,700 (FY2016) to $2,080,800 (FY
 > (`4ftb-8ne5`, field `full_addr`), then query on `map_lot` — the same move the deprecated permits
 > dataset forces (see Step 3).
 
-```sql
--- resolve 80 Thorndike St -> map_lot
-SELECT ml FROM ds_4ftb_8ne5 WHERE full_addr LIKE '%80 THORNDIKE%';   -- -> '24-41'
+Discover it, cache it, then resolve the address to a `map_lot`:
+
+```bash
+cambridge-data search "address points"
+cambridge-data fetch 4ftb-8ne5
+cambridge-data query "SELECT ml FROM ds_4ftb_8ne5 WHERE full_addr LIKE '%80 THORNDIKE%'"
 ```
+
+The result is `24-41` — the map-lot every other dataset in this profile keys on.
 
 ## Step 2 — the era gap: query *both* permit generations
 
@@ -47,12 +52,11 @@ The two eras don't share a schema, and the deprecated dataset's `address` field 
 `Location` type that **400-errors on `LIKE`/`upper()`** — match on `parcelnumber` (equivalent to
 `mbl`/`map_lot` elsewhere) instead:
 
-```sql
--- older permits, matched on parcel, not address
-SELECT plannumber, applicationdate, class, cost
-FROM ds_52p4_36ct
-WHERE parcelnumber = '24-41'
-ORDER BY applicationdate;
+```bash
+# cache the deprecated dataset, then match on parcel, not address
+cambridge-data fetch 52p4-36ct
+cambridge-data query "SELECT plannumber, applicationdate, class, cost
+  FROM ds_52p4_36ct WHERE parcelnumber = '24-41' ORDER BY applicationdate"
 ```
 
 The full history across both generations:
@@ -89,6 +93,8 @@ state that as cause and effect).
 
 ## What this tutorial demonstrates
 
+- The `cambridge-data` CLI end-to-end — `search` → `fetch` → `query` — resolving an address and
+  querying two permit eras from the shell.
 - The **era gap** — the #3 gotcha: a zero-result search often means "wrong dataset era," and the
   fix is to query *both* generations.
 - The **address-filing trap** — resolve to `map_lot`, don't query the address.
