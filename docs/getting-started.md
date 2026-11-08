@@ -22,13 +22,6 @@ Follow the [installation]() and [configuration]() steps before proceeding.
 
 The catalog is the searchable index of all 280+ datasets that the Portal provides, cached locally so discovery is instant and offline. You need to pull it first:
 
-::: danger CLI
-From the terminal, run the CLI command:
-
-```bash
-cambridge-data refresh
-```
-
 ::: tip SKILL
 In your agent harness session, you can refresh the catalog using a prompt similar to this:
 
@@ -37,6 +30,16 @@ Get me the latest data from the Cambridge Open Data Portal
 ```
 
 This should invoke the MCP server to use the `refresh_catalog` tool, which returns the row count and the cache path.
+:::
+
+::: warning CLI
+From the terminal, run the CLI command:
+
+```bash
+cambridge-data refresh
+```
+
+:::
 
 ## 1. Discover
 
