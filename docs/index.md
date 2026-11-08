@@ -26,10 +26,14 @@ features:
     details: Smoke tests provided to verify whether the tooling works.
 ---
 
+## Project objective
+
 The Cambridge MA Open Data Portal ([data.cambridgema.gov](https://data.cambridgema.gov)) is a
-Socrata instance with **280+ public datasets** — budget, public safety, permitting, GIS/parcels,
-public health, schools, and more. This project makes that data usable by an AI agent through two
-complementary interfaces that ship as one unit:
+Socrata instance with **280+ public datasets** including budget, public safety, permitting, GIS/parcels,
+public health, schools, and more.
+
+This project makes the Cambridge MA Open Data Portal data usable by an AI agent through two
+complementary interfaces that work in union:
 
 - **An MCP server** (`cambridge_data.mcp`, console script `cambridge-open-data-ma-mcp`) — the
   *machine* interface: eight tools and four resources that an AI agent can use to discover, fetch,
@@ -37,9 +41,9 @@ complementary interfaces that ship as one unit:
 - **A Skill** (`.claude/skills/cambridge-open-data/SKILL.md`) — the *cognitive* interface: the
   discover → fetch → cross-reference → infer workflow working around know gotchas already found when working with with data in the Portal.
 
-The server wraps the same library the `cambridge-data` CLI calls, so the harness and the CLI never
-drift — **one source of truth** serves every entry point. Public dataset reads and catalog search
-work with **no credentials**.
+A CLI, `cambridge-data`, is provided for you to directly access the same Python scripts that the MCP server and Skill use. This provides **one source of truth** across these tools.
+
+Public dataset reads and catalog search work with **no credentials**.
 
 > [!TIP]
 > New here? Start with [Getting started](getting-started.md), then read the

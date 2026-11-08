@@ -19,7 +19,7 @@ const base = '/cambridge-open-data-ma-ai/'
 const theme = './.vitepress/theme'
 
 export default defineConfig({
-  title: 'Cambridge Open Data MA',
+  title: 'Cambridge Open Data Tools',
   description:
     'An MCP server and a Skill for asking an AI agent to analyse Cambridge MA open data across datasets.',
   base,
@@ -50,8 +50,7 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/getting-started.html' },
       { text: 'Tutorials', link: '/tutorials/01-budget-salary-vs-operating.html' },
-      { text: 'Reference', link: '/reference.html' },
-      { text: 'GitHub', link: 'https://github.com/ali5ter/cambridge-open-data-ma-ai' },
+      { text: 'Reference', link: '/reference.html' }
     ],
 
     sidebar: [
