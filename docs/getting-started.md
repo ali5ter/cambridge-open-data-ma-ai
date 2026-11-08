@@ -9,8 +9,8 @@ The question:
 
 The answer requires joining two datasets found in the [Cambridge MA Open Data Portal](https://data.cambridgema.gov):
 
-* [Budget - Salaries (ixg8-tyau)]()
-* [Budget - Operating Expenditures (5bn4-5wey)]()
+* [Budget - Salaries (id: ixg8-tyau)](https://data.cambridgema.gov/Budget-Finance/Budget-Salaries/ixg8-tyau/about_data)
+* [Budget - Operating Expenditures (id: 5bn4-5wey)](https://data.cambridgema.gov/Budget-Finance/Budget-Operating-Expenditures/5bn4-5wey/about_data)
 
 ## 0. Prerequisites
 
