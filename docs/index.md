@@ -69,19 +69,21 @@ harness -- the Skill in opencode, with the MCP tool calls that produce the answe
 
 ## Install in one line
 
-From a clone of this repo, with [uv](https://docs.astral.sh/uv/):
+Clone from the [GitHub repo](https://github.com/ali5ter/cambridge-open-data-ma-ai), then initiate using [uv](https://docs.astral.sh/uv/):
 
 ```bash
+git clone git@github.com:ali5ter/cambridge-open-data-ma-ai.git
+cd cambridge-open-data-ma-ai
 uv sync
 uv run scripts/refresh_catalog.py     # pull the 280+ dataset index (a few seconds)
 uv run scripts/mcp_smoke.py           # end-to-end check (14/14 with a populated cache)
 ```
 
-See [Install and register](install.md) for every harness -- opencode, Claude Code, Cursor,
-Cline/Roo, Codex, Gemini CLI, and Antigravity -- and the HTTP bridge for OpenWebUI, ChatGPT, and
-Claude.ai.
+Read how to [install and register](install.md) across various harness's (opencode, Claude Code, Cursor,
+Cline/Roo, Codex, Gemini CLI, and Antigravity) and the HTTP bridge for OpenWebUI, ChatGPT, and
+Claude.
 
-## Layout
+## Repo layout
 
 ```text
 docs/                      this site
