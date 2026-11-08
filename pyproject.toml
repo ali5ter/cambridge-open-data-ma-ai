@@ -36,6 +36,7 @@ Issues = "https://github.com/ali5ter/cambridge-open-data-ma-ai/issues"
 
 [project.scripts]
 cambridge-open-data-ma-mcp = "cambridge_data.mcp:main"
+cambridge-data = "cambridge_data.cli:main"
 
 [build-system]
 requires = ["hatchling"]
