@@ -11,6 +11,10 @@ This skill drives the `cambridge_data` toolkit in this repo
 datasets. Public dataset reads and catalog search need no credentials; `.env` holds an app
 token that lifts the anonymous rate limit (see `.env.template`).
 
+> A harness-agnostic mirror of this Skill -- the same body without the YAML frontmatter and the
+> omp-specific tooling, for pasting into other harnesses -- lives at
+> `skills/cambridge-open-data/SKILL.md`.
+
 ## Workflow
 
 1. **Discover.** Search the local catalog cache first -- it's instant and covers name,

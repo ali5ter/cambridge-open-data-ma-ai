@@ -88,6 +88,10 @@ export default defineConfig({
             text: '5 · First Street Garage / East End House',
             link: '/tutorials/05-first-street-garage-agreements.html',
           },
+          {
+            text: '6 · Drive the Skill in opencode',
+            link: '/tutorials/06-drive-the-skill-in-opencode.html',
+          },
         ],
       },
       {

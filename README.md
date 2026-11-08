@@ -1,27 +1,26 @@
 # cambridge-open-data-ma-ai
 
-An **MCP server**, a **Skill**, and **tutorials** for asking an AI agent to discover, fetch,
+An **MCP server**, a **Skill** to enable an AI agent or agentic harness to discover, fetch,
 cross-reference, and infer insights from the
-[Cambridge MA Open Data Portal](https://data.cambridgema.gov) — a Socrata portal with 280+ public
+[Cambridge MA Open Data Portal](https://data.cambridgema.gov); a Socrata portal with 280+ public
 datasets (budget, public safety, permitting, GIS/parcels, public health, schools, and more).
 
-Ask a natural-language question about Cambridge civic data and get back a grounded answer built from
-real cross-dataset analysis, not a single-table lookup. Public dataset reads and catalog search work
-with **no credentials** at all.
+This enables a natural-language question about Cambridge civic data and get back an answer built from
+real cross-dataset analysis.
 
-## What is in the box
+## What do you get?
 
-- **The server** — `cambridge_data.mcp`, exposed as the `cambridge-open-data-ma-mcp` console script,
-  an 8-tool / 4-resource FastMCP (v1) server. It wraps the same library the CLIs call, so the harness
-  and the CLI never drift (one source of truth).
-- **The Skill** — `.claude/skills/cambridge-open-data/SKILL.md`, the operational playbook: the
-  discover → fetch → cross-reference → infer workflow, plus the gotchas that stop a naive answer.
-- **The tutorials** — `docs/`, five worked analyses that are also the test-suite of real use-cases
-  (below), each reproducible from the repo's `Data provenance` section.
-
-The server and the Skill are two views of one system — the *machine* interface (tools the agent can
-call) and the *cognitive* interface (the *when/why* and the judgment the tools deliberately can't
-encode). They version as a unit.
+- **An MCP server** — `cambridge_data.mcp`, exposed as the `cambridge-open-data-ma-mcp` console
+  script: an 8-tool / 4-resource FastMCP (v1) server. It is the *agent-facing* interface, wrapping
+  the same shared library (`src/cambridge_data/`) that the five command-line scripts
+  (`refresh_catalog.py`, `search_catalog.py`, `fetch_dataset.py`, `report_to_pdf.py`, and the
+  `mcp_smoke.py` smoke test) call by hand — so an agent's MCP call and a human's CLI reach the same
+  answer, and the two never drift (**one source of truth**).
+- **A Skill** — `.claude/skills/cambridge-open-data/SKILL.md`, the *cognitive* interface: the
+  discover → fetch → cross-reference → infer playbook plus the gotchas that keep the agent's answers
+  trustworthy.
+- **Documentation** — `docs/` explaining how to install, configure, and use the Skill and the MCP
+  server as complementary tools in your AI interaction with the Cambridge Open Data Portal.
 
 ## Install
 
@@ -33,8 +32,9 @@ uv run scripts/refresh_catalog.py        # pull the 280+ dataset index (seconds)
 uv run scripts/mcp_smoke.py              # end-to-end check
 ```
 
-The smoke test drives the live server and, with a populated cache, reports **14/14**. It needs the
-catalog plus the three raw datasets the coverage and cross-reference checks exercise:
+The smoke test drives the live server and, with a populated cache, returns a report of tests. To do
+this, three datasets need to be retrieved from the Portal, to create a catalog the smoke tests can run
+against:
 
 ```bash
 uv run scripts/fetch_dataset.py 9qm7-wbdc    # building permits — the coverage audit
@@ -42,14 +42,9 @@ uv run scripts/fetch_dataset.py ixg8-tyau    # salaries — the cross-dataset SQ
 uv run scripts/fetch_dataset.py 5bn4-5wey    # operating budget — the wrong-name error
 ```
 
-On a fresh clone without that cache the cache-dependent checks **skip** (not fail) with a how-to
-banner, and the run still exits 0 — a skip is not a failure. The cache is gitignored and rebuildable;
-the `data/raw/*.parquet` files can also be copied from the `local-data-experiments` repo.
+## Registering the MCP server
 
-## Register the MCP server
-
-The server is the universal part — any MCP-aware harness can use it. The commands below write the
-server's config for that harness.
+These are the commands to register the MCP server on the system where you run your AI agentic harness:
 
 | Harness | Register |
 | --- | --- |
@@ -58,16 +53,30 @@ server's config for that harness.
 | **Cursor** | `.cursor/mcp.json`: `{ "mcpServers": { "cambridge-open-data-ma-ai": { "command": "uv", "args": ["run", "cambridge-open-data-ma-mcp"] } } }` |
 | **Cline / Roo** (VS Code) | add a stdio MCP server in settings: command `uv`, args `run cambridge-open-data-ma-mcp` |
 
-The shareable registration is `opencode.json` at the repo root — copy it and the key is
-`cambridge-open-data-ma-ai`.
+The same stdio server registers with **Codex**, **Gemini CLI**, and **Antigravity** by a single
+command each; **HTTP-only** clients (OpenWebUI, ChatGPT, Claude.ai) need a bridge because the
+server is stdio-only. The [registration commands](docs/install.md#register-the-mcp-server)
+give every harness's exact form, including the bridge.
 
-## Deliver the Skill
+The shareable registration is `opencode.json` at the repo root — that is OpenCode's own config, so
+copy it in and the key `cambridge-open-data-ma-ai` is enough. The table above shows each *other*
+harness's equivalent form; the server is a **stdio** FastMCP server, so the launch line is the same
+for all of them and only the config shape differs.
 
-The Skill is a `.claude/skills/` artifact, read natively by **Claude Code** and **omp** (drop the
-`.claude/skills/cambridge-open-data/` folder into the project or `~/.claude/skills/`). For every
-other harness the Skill is delivered by pasting `SKILL.md` into that harness's rules / agent /
-instructions, because only those harnesses read the `.claude/skills/` contract. The server is the
-part that works everywhere.
+## Installing the Skill
+
+The Skill is the operational playbook for the discover → fetch → cross-reference → infer workflow.
+It ships in two forms:
+
+- **Canonical** — `.claude/skills/cambridge-open-data/SKILL.md`, read natively by **Claude Code**
+  and **omp**. Drop the folder into the project or `~/.claude/skills/`. **Antigravity** also reads
+  a `SKILL.md` natively (from `.agents/skills/` or `~/.gemini/config/skills/`).
+- **Harness-agnostic mirror** — `skills/cambridge-open-data/SKILL.md`, the same body with the Claude
+  / omp YAML frontmatter and self-audit step removed, ready to paste into any harness's rules or
+  agent file (Cursor, Gemini CLI, and the rest).
+
+Each harness's own delivery is tabulated in the [Deliver the Skill](docs/install.md#deliver-the-skill)
+section of install.md.
 
 ## Worked use-cases (the `docs/` tutorials)
 
@@ -81,8 +90,14 @@ part that works everywhere.
    start 2018-07).
 5. **First Street Garage / East End House** — three distinct legal instruments; a headline finding that
    a childcare commitment was **never fulfilled** (existence is not delivery).
+6. **Drive the Skill in opencode** — a harness how-to: the Skill running inside opencode against the
+   live MCP server, end to end.
 
-See [`docs/`](docs/) for the full tutorials and the gotchas that make the answers trustworthy.
+Items 1–5 are grounded analyses of real portal data; a few of them trace the author's own research,
+so read the findings as that research and verify before relying on them. Item 6 shows how to drive
+the whole workflow from a popular harness rather than by hand. See
+[`docs/tutorials`](docs/tutorials/) for the full walkthroughs and the gotchas that make the answers
+trustworthy.
 
 ## Configuration
 
@@ -95,11 +110,15 @@ environment variables — they are a client-side label, not a secret.
 ## Updating the docs
 
 The website at <https://ali5ter.github.io/cambridge-open-data-ma-ai/> is built from `docs/`
-by VitePress; every push to `main` rebuilds and redeploys it automatically, so there is no
-manual "publish" step. To change the site, edit the Markdown in `docs/` and push — or click
-"Edit this page" on any live page to open its source file on GitHub. The root `README.md`
-is the GitHub project page, not part of the site build, so the two surfaces are edited
-independently.
+using [VitePress](https://vitepress.dev); every push to `main` rebuilds and redeploys it automatically.
+
+To change the site, edit the Markdown in `docs/` and push — or click the "Edit this page" link in a
+page's footer to open its source file on GitHub. The link is a small footer element (a pencil icon and
+text), present on every **documentation** page (Guide, Tutorials, Reference); VitePress omits the doc
+footer on the homepage (`layout: home`) and the 404 page, so it is absent there. It is a *public*
+hyperlink — every visitor sees it — and GitHub then gates the *action*: a contributor with write access
+commits directly, everyone else is routed to "Fork and propose changes." The root `README.md` is the
+GitHub project page, not part of the site build, so the two surfaces are edited independently.
 
 ## License
 

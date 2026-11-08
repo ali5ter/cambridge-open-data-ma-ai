@@ -95,18 +95,82 @@ Add a stdio MCP server in the extension's settings — command `uv`, arguments
 }
 ```
 
+### Codex
+
+```bash
+codex mcp add cambridge-open-data-ma-ai -- uv run cambridge-open-data-ma-mcp
+```
+
+Writes `[mcp_servers.cambridge-open-data-ma-ai]` to `~/.codex/config.toml`. Confirm with
+`codex mcp list` (or `/mcp` in the TUI).
+
+### Gemini CLI
+
+```bash
+gemini mcp add cambridge-open-data-ma-ai -- uv run cambridge-open-data-ma-mcp
+```
+
+Writes the server into `~/.gemini/settings.json` under `mcpServers`. Restart the CLI or run `/mcp`
+to confirm.
+
+### Antigravity
+
+Antigravity reads a `mcpServers` block, not a CLI. Add it to `~/.gemini/config/mcp_config.json`
+(global) or `.agents/mcp_config.json` (workspace) — or use the built-in MCP Store:
+
+```json
+{
+  "mcpServers": {
+    "cambridge-open-data-ma-ai": {
+      "command": "uv",
+      "args": ["run", "cambridge-open-data-ma-mcp"],
+      "env": { "CAM_OPEN_DATA_CACHE_DIR": "/abs/path/to/repo/data" }
+    }
+  }
+}
+```
+
+Antigravity does **not** interpolate shell variables, so write a literal path for
+`CAM_OPEN_DATA_CACHE_DIR`. It also reads a `SKILL.md` natively, so the Skill can be delivered to it
+without pasting (see below).
+
+## Bridge to HTTP-only clients
+
+**OpenWebUI**, **ChatGPT**, and **Claude.ai** accept MCP over HTTP only, so a stdio server like this
+one will not connect to them directly. Two paths get you there.
+
+### Local bridge — `mcpo` (OpenWebUI)
+
+`mcpo` is an HTTP front-end for a stdio server. Start it, then point OpenWebUI at it:
+
+```bash
+uvx mcpo --host 0.0.0.0 --port 8000 -- uv run cambridge-open-data-ma-mcp
+```
+
+In OpenWebUI go to **Settings → Admin → Integrations → External Tool Servers** and add a server with
+**Type = "MCP (Streamable HTTP)"** and URL `http://localhost:8000/mcp`. Registering MCP servers is
+admin-only, and the bridge process must stay running for the duration.
+
+### Remote endpoint — ChatGPT / Claude.ai
+
+These call a remote URL (typically ending in `/sse` or `/mcp`); they do not run a local process.
+Expose the server over HTTPS — tunnel it with `ngrok` or `cloudflared`, or host it — then, with
+Developer Mode on (a paid-plan feature), add a custom connector pointing at that URL.
+
 ## Deliver the Skill
 
-The Skill is a `.claude/skills/` artifact. **Only Claude Code and omp read that contract natively.**
-For every other harness, the Skill is delivered by pasting
-`.claude/skills/cambridge-open-data/SKILL.md` into that harness's rules / agent / instructions
-file — the server alone works everywhere, but the gotchas (the part that stops a wrong answer)
-live in the Skill.
+The Skill ships in two forms: the **canonical** copy at `.claude/skills/cambridge-open-data/SKILL.md`
+(the Claude Code / omp form, with YAML frontmatter and a self-audit step), and a
+**harness-agnostic mirror** at `skills/cambridge-open-data/SKILL.md` — the same body without that
+frontmatter, ready to paste anywhere. The server alone works everywhere, but the gotchas (the part
+that stops a wrong answer) live in the Skill.
 
 | Harness | Register the server | Deliver the Skill |
 |---|---|---|
 | **opencode** | `opencode mcp add ...` → `opencode.json` | custom agent, or paste `SKILL.md` into the README/agent instructions |
 | **Claude Code** | `claude mcp add ...` | drop `.claude/skills/cambridge-open-data/` into the project or `~/.claude/skills/` |
+| **Antigravity** | `mcpServers` in `mcp_config.json` | native — reads `SKILL.md`; drop the mirror into `.agents/skills/` |
+| **Codex / Gemini CLI / others** | `codex mcp add ...` / `gemini mcp add ...` / config | paste the mirror's body into the harness's rules/agent file |
 | **Cursor** | `.cursor/mcp.json` | `.cursor/rules`, or paste `SKILL.md` |
 | **Cline / Roo** | settings / `.roo/mcp.json` | rules file, or paste `SKILL.md` |
 

@@ -16,8 +16,8 @@ features:
     details: Discover, fetch, cross-reference, and query the Socrata portal as an MCP server.
   - title: A Skill that stops wrong answers
     details: Existence is not delivery; civic agreements aren't portal data; the recent-window trap.
-  - title: Five grounded tutorials
-    details: Budget, parking tickets, POPS, a property profile, and a childcare commitment that was never fulfilled.
+  - title: Six tutorials
+    details: Five grounded analyses, plus a how-to that drives the Skill in opencode.
   - title: No credentials
     details: Public dataset reads and catalog search work with no credentials at all.
   - title: One source of truth
@@ -61,7 +61,9 @@ portal. They double as the toolkit's test-suite:
 | 4 | What does the portal know about 80 Thorndike St? | The **era gap** — current permit datasets start 2018-07 |
 | 5 | What did the developer of 40 Thorndike St promise the City? | **Civic agreements aren't portal data** + **existence ≠ delivery** |
 
-[Open the tutorials](tutorials/01-budget-salary-vs-operating.md).
+[Open the tutorials](tutorials/01-budget-salary-vs-operating.md). After the five analyses,
+[tutorial 6](tutorials/06-drive-the-skill-in-opencode.md) shows the whole loop driven from a
+harness -- the Skill in opencode, with the MCP tool calls that produce the answer.
 
 ## Install in one line
 
@@ -73,8 +75,9 @@ uv run scripts/refresh_catalog.py     # pull the 280+ dataset index (a few secon
 uv run scripts/mcp_smoke.py           # end-to-end check (14/14 with a populated cache)
 ```
 
-See [Install and register](install.md) for registering the server with opencode, Claude Code,
-Cursor, or Cline/Roo.
+See [Install and register](install.md) for every harness -- opencode, Claude Code, Cursor,
+Cline/Roo, Codex, Gemini CLI, and Antigravity -- and the HTTP bridge for OpenWebUI, ChatGPT, and
+Claude.ai.
 
 ## Layout
 
@@ -87,7 +90,7 @@ docs/                      this site
   gotchas.md               the failure modes that make civic-data answers wrong
   reference.md             the 8 tools and 4 resources
   configuration.md         .env, cache/reports directories
-  tutorials/               the five worked use-cases
+  tutorials/               the five worked use-cases plus a harness how-to
 src/cambridge_data/        the library + the MCP server (one source of truth)
 scripts/                   thin CLIs, one per operation
 opencode.json              the shareable server registration
