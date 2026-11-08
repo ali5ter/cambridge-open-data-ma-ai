@@ -1,26 +1,38 @@
 # Getting started
 
-This page walks through a single cross-dataset question end-to-end, both ways — with the MCP
-server (what an agent does) and with the `cambridge-data` CLI (what a human does). The two share one
-library, so they reach the same answer. The question:
+This page walks through a single cross-dataset question end-to-end. It focuses on the CLI and what the equivalent MCP tool is. Then at the end, presents an example of an agentic harness chat session to do the same thing.
+
+The question:
 
 > **Which Cambridge departments spent the most on salaries in the FY2027 budget, and how does that
 > line up with their operating budget?**
 
-The answer requires joining two datasets the portal never joined for you:
-`Budget - Salaries` (`ixg8-tyau`) and `Budget - Operating Expenditures` (`5bn4-5wey`).
+The answer requires joining two datasets found in the [Cambridge MA Open Data Portal](https://data.cambridgema.gov):
 
-## 0. Get the catalog
+* [Budget - Salaries (ixg8-tyau)]()
+* [Budget - Operating Expenditures (5bn4-5wey)]()
 
-The catalog is the searchable index of all 280+ datasets, cached locally so discovery is instant
+## 0. Prerequisites
+
+### Install and configuration
+
+Follow the [installation]() and [configuration]() steps before proceeding.
+
+### Pull the catalog
+
+The catalog is the searchable index of all 280+ datasets that the Portal provides, cached locally so discovery is instant
 and offline. Pull it first:
 
 ```bash
 cambridge-data refresh
 ```
 
-Through the MCP server, the same step is the `refresh_catalog` tool, which returns the row count
-and the cache path.
+> [!Using the Skill]
+> In your agent harness session, you can refresh the catalog using a prompt similar to this:
+>> Get me the latest data from the Cambridge Open Data Portal
+>
+> This should invoke the MCP server to use the `refresh_catalog` tool, which returns the row count
+> and the cache path.
 
 ## 1. Discover
 
