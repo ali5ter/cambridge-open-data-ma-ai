@@ -2,7 +2,7 @@
 layout: home
 hero:
   name: Cambridge Open Data Portal Tools
-  text: An MCP server, an AI Skill, and Python scripts for civic-data analysis
+  text: An MCP server, an AI Skill, and CLI for civic-data analysis
   tagline: Ask an AI agent a question about Cambridge civic data; get a cross-dataset answer.
   actions:
     - theme: brand
