@@ -1,8 +1,8 @@
 # Cambridge Open Data Portal
 
 > **Harness-agnostic mirror.** The same playbook as the canonical
-> `.claude/skills/cambridge-open-data/SKILL.md`, without its YAML frontmatter (a Claude Code / omp
-> contract) or omp-specific tooling, so it pastes cleanly into any harness's rules or agent file.
+> `.claude/skills/cambridge-open-data/SKILL.md`, without its YAML frontmatter (the Agent Skills
+> standard) or omp-specific tooling, so it pastes cleanly into any harness's rules or agent file.
 > Keep the two in sync: edits to the canonical body should be mirrored here.
 
 This skill drives the `cambridge_data` toolkit in this repo

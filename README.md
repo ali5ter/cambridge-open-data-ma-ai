@@ -83,15 +83,16 @@ for all of them and only the config shape differs.
 The Skill is the operational playbook for the discover → fetch → cross-reference → infer workflow.
 It ships in two forms:
 
-- **Canonical** — `.claude/skills/cambridge-open-data/SKILL.md`, read natively by **Claude Code**
-  and **omp**. Drop the folder into the project or `~/.claude/skills/`. **Antigravity** also reads
-  a `SKILL.md` natively (from `.agents/skills/` or `~/.gemini/config/skills/`).
-- **Harness-agnostic mirror** — `skills/cambridge-open-data/SKILL.md`, the same body with the Claude
-  / omp YAML frontmatter and self-audit step removed, ready to paste into any harness's rules or
-  agent file (Cursor, Gemini CLI, and the rest).
+- **Canonical** — `.claude/skills/cambridge-open-data/SKILL.md`, the
+  [Agent Skills](https://agentskills.io) form: a folder + `SKILL.md` with `name`/`description`
+  frontmatter, read natively by OpenCode, Claude Code, Antigravity, and Gemini CLI. Drop the folder
+  into the project or `~/.claude/skills/` (OpenCode and Claude Code also read it in-repo).
+- **Harness-agnostic mirror** — `skills/cambridge-open-data/SKILL.md`, the same body with the
+  frontmatter and self-audit step removed, ready to paste into a harness that ingests a rules or
+  agent file (Cursor, Cline / Roo, Codex, and the like).
 
-Each harness's own delivery is tabulated in the [Deliver the Skill](docs/install.md#deliver-the-skill)
-section of install.md.
+Each harness's own delivery is tabulated in the
+[Installing the Skill](docs/install.md#installing-the-skill) section of install.md.
 
 ## Worked use-cases (the `docs/` tutorials)
 

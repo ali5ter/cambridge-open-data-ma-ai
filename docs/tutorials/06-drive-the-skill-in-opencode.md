@@ -27,7 +27,7 @@ The server alone works everywhere, but the gotchas — the part that stops a *wr
 Skill. For opencode, deliver it one of two ways:
 
 - **Custom agent** — point opencode at a small agent file that loads `SKILL.md` (see
-  [install.md → Deliver the Skill](../install.md#deliver-the-skill)).
+  [install.md → Installing the Skill](../install.md#installing-the-skill)).
 - **Inline** — paste the body of `.claude/skills/cambridge-open-data/SKILL.md` into your `README.md` or
   agent instructions; opencode reads it as project context.
 
