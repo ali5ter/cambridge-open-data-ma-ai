@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# cambridge-data - run the CLI via `uv run` from any directory.
+#
+# A thin shim: resolve this script's real path (so it works through a PATH
+# symlink), then exec the CLI in the repo's uv project, so a plain
+# `cambridge-data <command>` points at the repo's data/ regardless of the
+# current working directory.
+#
+# Author: Alister Lewis-Bowen <alister@lewis-bowen.org>
+# Version: 1.0.0
+# Date: 2026-11-08
+# License: MIT
+#
+# Usage:
+#   cambridge-data <command> [args...]
+#
+#   Install so it is on your PATH (create once, from a repo checkout):
+#     mkdir -p ~/.local/bin
+#     ln -sf "$PWD/scripts/cambridge-data" ~/.local/bin/cambridge-data
+#     # then make sure ~/.local/bin is on your PATH
+#
+# Dependencies: bash, uv (with `uv sync` already run in the repo)
+#
+# Exit codes (propagated from the underlying cambridge-data CLI):
+#   0   - success
+#   1   - handled error
+#   130 - interrupted (Ctrl-C)
+#   2   - usage error
+
+# Resolve this script's real location, following symlinks, so it works whether
+# run directly or via a symlink on PATH. A readlink loop (not `realpath`, which
+# is not on macOS by default) keeps it portable.
+self="$0"
+while [ -h "$self" ]; do
+  dir="$(cd -- "$(dirname -- "$self")" && pwd)"
+  self="$(readlink -- "$self")"
+  case "$self" in /*) ;; *) self="$dir/$self" ;; esac
+done
+
+# Hand off to the CLI in the repo's uv project, from any working directory.
+# This script lives in scripts/, so the repo root is one level up. Invoke the
+# module (not a command named `cambridge-data`): a script called `cambridge-data`
+# that runs `uv run cambridge-data` re-resolves to itself and recurses.
+# `python -m` avoids the name collision -- same env, same flags.
+exec uv run --directory "$(cd -- "$(dirname -- "$self")/.." && pwd)" python -m cambridge_data.cli "$@"

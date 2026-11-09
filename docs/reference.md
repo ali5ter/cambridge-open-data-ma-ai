@@ -40,6 +40,191 @@ The eight tools map one-to-one onto the first eight rows; the four resources map
 Every subcommand exits `0` on success, `1` on a handled error, `130` on Ctrl-C, and `2` on a usage
 error; append `--json` to machine-parse the same result.
 
+## CLI command reference
+
+The table above is the quick index; this section is the per-subcommand reference.
+Every subcommand accepts `-j` / `--json` (emits JSON-native rows instead of a Rich
+table, so the output pipes into another tool), and long-running network work
+(`refresh`, `fetch`) shows a spinner. Each block gives the usage line, its
+positional argument(s), its command-specific flags with defaults, and a worked
+example drawn from the tutorials — the flag and field names are the *machine*
+names a query accepts.
+
+### `refresh`
+
+```bash
+cambridge-data refresh
+```
+
+Refresh the local catalog cache from the live Socrata Discovery API — the full
+dataset listing (~280 datasets) into `data/catalog.parquet`. Run it first when
+`search` reports a missing cache, or when the portal may have new datasets. Needs
+no credentials; the app token only lifts the anonymous rate limit. No positional
+arguments or command-specific flags. Mirrors the `refresh_catalog` tool.
+
+### `search`
+
+```bash
+cambridge-data search "budget salaries"
+```
+
+Find datasets by keyword — matching name, description, category, and tags in the
+cached catalog — and read `columns_field_name`, the *machine* field names a query
+accepts (not the display names; querying with a display name silently returns zero
+rows). Run `refresh` first if the cache looks stale.
+
+- **Positional:** `keyword` — a free-text search term
+- **Flags:** `--limit` — max results (default 20)
+- **Mirrors:** the `search_datasets` tool
+- **Example:** `cambridge-data search budget --json`
+
+### `describe`
+
+```bash
+cambridge-data describe ixg8-tyau --probe
+```
+
+Full schema and coverage profile for one dataset: the machine field names (query
+with these, not the display names), their types, display names, tags, update
+cadence, and — when cached — the row count and the dataset's own earliest/latest
+date (the **era-gap** signal). Set `--probe` for `coverage_flags`: fields only
+partly populated, the recent-window traps to check before trusting a total.
+
+- **Positional:** `dataset_id` — a Socrata four-by-four dataset id, e.g. `ixg8-tyau`
+- **Flags:** `--probe` — include coverage flags (off by default); `--top` — max
+  coverage flags (default 10)
+- **Mirrors:** the `describe_dataset` tool and the `cambridge://datasets/{id}`
+  resource
+- **Example:** `cambridge-data describe ixg8-tyau --probe --top 5`
+
+### `fetch`
+
+```bash
+cambridge-data fetch ixg8-tyau --where "fiscal_year='2027'"
+```
+
+Pull every row of a dataset via the SODA API and cache it as Parquet
+(`data/raw/<id>.parquet`) so it can be cross-referenced in SQL. Supports a
+server-side `$where` filter and `$select` projection. Re-running overwrites the
+cache; large datasets take time, so prefer a `$where` when a subset suffices.
+
+- **Positional:** `dataset_id` — a Socrata four-by-four dataset id, e.g. `ixg8-tyau`
+- **Flags:** `--where` — a SoQL `$where` filter (server-side); `--select` — a SoQL
+  `$select` projection (server-side)
+- **Mirrors:** the `fetch_dataset` tool
+- **Example:** `cambridge-data fetch ixg8-tyau --where "fiscal_year='2027'" --select fiscal_year,total_salary`
+
+### `coverage`
+
+```bash
+cambridge-data coverage ixg8-tyau --field total_salary
+```
+
+Probe how **one** field is actually populated across a *cached* dataset — the
+defence against the recent-window trap. Reports the populated fraction and, for
+populated rows, the date range they span, and states a `warning` when the pattern
+looks like a recent operational window rather than the full history. Always run
+this before summing or rate-computing over a field.
+
+- **Positional:** `dataset_id` — a Socrata four-by-four dataset id (must be cached)
+- **Flags:** `--field` — the *machine* field name to probe (**required**, from
+  `columns_field_name`); `--date-field` — the time-axis column that brackets the
+  populated rows (auto-detected from the column names when omitted)
+- **Mirrors:** the `field_coverage` tool
+- **Example:** `cambridge-data coverage ixg8-tyau --field total_salary`
+
+### `audit`
+
+```bash
+cambridge-data audit ixg8-tyau --threshold 99 --top 10
+```
+
+Scan **every** field of a *cached* dataset and return the least-populated first —
+the automated version of "check field population before trusting a total." This is
+how you discover, up front, that a complete-looking column is really a recent
+window. Use it instead of hand-checking fields one at a time.
+
+- **Positional:** `dataset_id` — a Socrata four-by-four dataset id (must be cached)
+- **Flags:** `--threshold` — flag fields below this percent populated (default
+  99.0); `--top` — max fields to return (default 10)
+- **Mirrors:** the `coverage_audit` tool
+- **Example:** `cambridge-data audit ixg8-tyau --threshold 99 --top 10`
+
+### `cached`
+
+```bash
+cambridge-data cached
+```
+
+List the dataset ids whose rows are cached locally in `data/raw/`. Only cached
+datasets can be queried in SQL or audited for coverage; use `fetch` to pull one
+that is not yet cached. No positional arguments or command-specific flags.
+Mirrors the `list_cached_datasets` tool.
+
+### `query`
+
+```bash
+cambridge-data query "SELECT department, SUM(TRY_CAST(total_salary AS DOUBLE)) total \
+                     FROM ds_ixg8_tyau GROUP BY 1 ORDER BY 2 DESC LIMIT 3"
+```
+
+Run a DuckDB `SELECT` over the cached datasets, exposed as one SQL view per
+dataset named `ds_<id_with_underscores>` (`ixg8-tyau` → `ds_ixg8_tyau`). This is
+the cross-referencing step: join and aggregate across `ds_*` views. Every Socrata
+column is a string — use `TRY_CAST(col AS DOUBLE)` for numeric work, and expect
+join keys (e.g. department names) to need normalising before they line up.
+
+- **Positional:** `sql` — a DuckDB `SELECT` referencing `ds_<id>` views
+- **Flags:** `--limit` — max rows to return (default 1000)
+- **Mirrors:** the `query` tool
+- **Example:** see the command above; `cambridge-data query "SELECT COUNT(*) FROM ds_ixg8_tyau"`
+
+> [!NOTE]
+> `query` runs arbitrary SQL over local Parquet only — a trusted **single-user**
+> tool, not sandboxed. Run `describe` + `audit` first so you know the fields exist
+> and are fully populated (see the `query` entry under Tools for the full warning).
+
+### `catalog`
+
+```bash
+cambridge-data catalog --limit 100
+```
+
+Dump the full compact dataset index — id, name, category, update frequency, and
+last-updated per dataset — the human form of the `cambridge://catalog` resource.
+Read it to discover datasets; use `describe` for one dataset's full schema and
+coverage. No positional arguments.
+
+- **Flags:** `--limit` — rows to show (`0` = all; default 50)
+- **Mirrors:** the `cambridge://catalog` resource
+- **Example:** `cambridge-data catalog --limit 100`
+
+### `reports`
+
+```bash
+cambridge-data reports
+```
+
+List the finished analysis report slugs in `docs/reports/` — the human form of
+the `cambridge://reports` resource. The corpus lives in the *upstream*
+`local-data-experiments` repo, so a fresh public install lists none until it
+populates its own `docs/reports/`. No positional arguments. Mirrors the
+`cambridge://reports` resource.
+
+### `report`
+
+```bash
+cambridge-data report <slug>
+```
+
+Print one finished report's Markdown — self-contained, with a Data provenance
+section — the human form of the `cambridge://reports/{slug}` resource. Raises an
+actionable error listing the available slugs when the slug is unknown.
+
+- **Positional:** `slug` — a report directory name, from `cambridge-data reports`
+- **Mirrors:** the `cambridge://reports/{slug}` resource
+- **Example:** `cambridge-data report <slug>`
+
 ## Tools
 
 ### `refresh_catalog`

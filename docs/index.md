@@ -28,7 +28,7 @@ features:
 
 ## Project objective
 
-The Cambridge MA Open Data Portal ([data.cambridgema.gov](https://data.cambridgema.gov)) is a
+The [Cambridge MA Open Data Portal](https://data.cambridgema.gov) is a
 Socrata instance with **280+ public datasets** including budget, public safety, permitting, GIS/parcels,
 public health, schools, and more.
 
@@ -69,19 +69,18 @@ harness -- the Skill in opencode, with the MCP tool calls that produce the answe
 
 ## Install in one line
 
-Clone from the [GitHub repo](https://github.com/ali5ter/cambridge-open-data-ma-ai), then initiate using [uv](https://docs.astral.sh/uv/):
+Clone from the [GitHub repo](https://github.com/ali5ter/cambridge-open-data-ma-ai), initiate using [uv](https://docs.astral.sh/uv/), make the CLI accessible, then set up the Portal dataset catalog:
 
 ```bash
 git clone git@github.com:ali5ter/cambridge-open-data-ma-ai.git
 cd cambridge-open-data-ma-ai
 uv sync
-uv run scripts/refresh_catalog.py     # pull the 280+ dataset index (a few seconds)
-uv run scripts/mcp_smoke.py           # end-to-end check (14/14 with a populated cache)
+mkdir -p ~/.local/bin && ln -sf "$PWD/scripts/cambridge-data" ~/.local/bin/cambridge-data
+cambridge-data refresh          # pull the 280+ dataset index (a few seconds)
+uv run scripts/mcp_smoke.py     # end-to-end check (14/14 with a populated cache)
 ```
 
-Read how to [install and register](install.md) across various harness's (opencode, Claude Code, Cursor,
-Cline/Roo, Codex, Gemini CLI, and Antigravity) and the HTTP bridge for OpenWebUI, ChatGPT, and
-Claude.
+The `ln -sf` line puts the CLI on your `PATH` so `cambridge-data` runs from any directory. Read how to [install and register](install.md) across various harness's (opencode, Claude Code, Cursor, Cline/Roo, Codex, Gemini CLI, and Antigravity) and the HTTP bridge for OpenWebUI, ChatGPT, and Claude.
 
 ## Repo layout
 

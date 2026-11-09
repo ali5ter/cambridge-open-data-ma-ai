@@ -17,19 +17,19 @@ token that lifts the anonymous rate limit (see `.env.template`).
    description, category, and tags:
 
    ```bash
-   uv run scripts/search_catalog.py "<keyword>"
+   cambridge-data search "<keyword>"
    ```
 
    If the cache is missing or looks stale for the question at hand, refresh it
-   (`uv run scripts/refresh_catalog.py`; ~280 rows, a few seconds). Read the printed
+   (`cambridge-data refresh`; ~280 rows, a few seconds). Read the printed
    `columns_*` metadata (available via `cambridge_data.catalog.get(dataset_id)`) before
    fetching -- it tells you field names/types without pulling data.
 
 2. **Fetch.** Pull full dataset contents into the local Parquet cache:
 
    ```bash
-   uv run scripts/fetch_dataset.py <dataset-id>
-   uv run scripts/fetch_dataset.py <dataset-id> --where "fiscal_year='2027'"   # server-side filter
+   cambridge-data fetch <dataset-id>
+   cambridge-data fetch <dataset-id> --where "fiscal_year='2027'"   # server-side filter
    ```
 
    Re-fetch is cheap and safe (overwrites); `data/manifest.json` records when each dataset

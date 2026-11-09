@@ -1,61 +1,48 @@
 # Install and register
 
-The server is the universal part — any MCP-aware harness can use it. The commands below register
-it for that harness; the Skill is a separate delivery (the last section).
+This page provides guidance for the registration of the MCP Server and installation of the Skill provided by this project.
 
-> [!NOTE]
-> The commands assume [uv](https://docs.astral.sh/uv/) is installed. The `uv run
-> cambridge-open-data-ma-mcp` form runs the console script from *this repo's* virtualenv, so the
-> working directory must be the repo (or a venv where the script is on `PATH`). A future published
-> install (`pip install cambridge-open-data-ma-ai`) would put the script on `PATH` directly, so
-> `command` would drop the `uv run` prefix. Verify a harness's exact flag syntax against its own
-> docs — these drift between releases.
+## Prerequisites
 
-## Get the code
+Some commands in this page assume [uv](https://docs.astral.sh/uv/) is installed. This provides a convenient Python environment so that the scripts work from the local git repo.
 
 ```bash
 git clone https://github.com/ali5ter/cambridge-open-data-ma-ai
 cd cambridge-open-data-ma-ai
 uv sync                 # install dependencies into a local .venv
-uv run scripts/refresh_catalog.py   # pull the dataset index (seconds)
+mkdir -p ~/.local/bin && ln -sf "$PWD/scripts/cambridge-data" ~/.local/bin/cambridge-data
+cambridge-data refresh   # pull the dataset index (seconds)
 ```
+
+The `ln -sf` line puts the `cambridge-data` CLI on your `PATH` (add `~/.local/bin` to it if it
+isn't already), so the bare command runs from any directory instead of `uv run scripts/…`.
 
 Credentials are optional. Public dataset reads and catalog search work with no credentials, just at
 a lower anonymous rate limit. To lift that limit, copy `.env.template` to `.env` and add an app
-token from
-<https://data.cambridgema.gov/profile/edit/developer_settings> — see
+token from <https://data.cambridgema.gov/profile/edit/developer_settings>. Read more in
 [Configuration](configuration.md).
 
-## Register the MCP server
+## Registering the MCP server
 
-The registration is a small JSON block. `opencode.json` at the repo root is the shareable artifact
-— copy it and edit the key, or let the CLI generate it.
+::: note MCP?
+MCP (Model Context Protocol) is a common way to connect AI assistants to your other apps, roughly like USB-C is for cables. Before it, every AI tool needed its own custom link to every program you wanted it to talk to; MCP lets one AI reach your files, calendar, or any other service the same way, and a tool you build once can work with any AI. Anthropic made it free for anyone to use in late 2024, and it has become the go-to way to wire AI into the rest of your digital life.
+:::
 
-### opencode (TUI, Desktop, Web)
+The registration is defined using a small JSON block that is inserted into an AI harness configuration. Some harnesses also perform registration through their own CLI.
 
-opencode has a CLI that writes a project-level `opencode.json`:
+An example of this JSON block can be seen in the `opencode.json` file.
+
+### OpenCode (TUI, Desktop, Web)
+
+The `opencode.json` files in this project will register the MCP server for this project as soon as you run the OpenCode MCP.
+
+[OpenCode](https://opencode.ai) has a CLI that can also write the openCode global level configuration:
 
 ```bash
-opencode mcp add cambridge-open-data-ma-ai -- uv run cambridge-open-data-ma-mcp
+opencode mcp add --global cambridge-open-data-ma-ai -- uv run cambridge-open-data-ma-mcp
 ```
 
-The result (and the checked-in `opencode.json`) is:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "cambridge-open-data-ma-ai": {
-        "type": "local",
-        "command": ["uv", "run", "cambridge-open-data-ma-mcp"]
-      }
-    }
-  }
-}
-```
-
-In the TUI, run `/mcp` to list registered servers and confirm `cambridge-open-data-ma-ai` is
-connected.
+In the OpenCode TUI, run `/mcp` to list registered servers and confirm `cambridge-open-data-ma-ai` is connected.
 
 ### Claude Code
 
@@ -134,7 +121,9 @@ Antigravity does **not** interpolate shell variables, so write a literal path fo
 `CAM_OPEN_DATA_CACHE_DIR`. It also reads a `SKILL.md` natively, so the Skill can be delivered to it
 without pasting (see below).
 
-## Bridge to HTTP-only clients
+## HTTP-only connection to the MCP Server
+
+The GUI based agentic harnesses typically connect to MCP Servers using HTTP.
 
 **OpenWebUI**, **ChatGPT**, and **Claude.ai** accept MCP over HTTP only, so a stdio server like this
 one will not connect to them directly. Two paths get you there.
@@ -157,46 +146,53 @@ These call a remote URL (typically ending in `/sse` or `/mcp`); they do not run 
 Expose the server over HTTPS — tunnel it with `ngrok` or `cloudflared`, or host it — then, with
 Developer Mode on (a paid-plan feature), add a custom connector pointing at that URL.
 
-## Deliver the Skill
+## Installing the Skill
 
-The Skill ships in two forms: the **canonical** copy at `.claude/skills/cambridge-open-data/SKILL.md`
-(the Claude Code / omp form, with YAML frontmatter and a self-audit step), and a
-**harness-agnostic mirror** at `skills/cambridge-open-data/SKILL.md` — the same body without that
-frontmatter, ready to paste anywhere. The server alone works everywhere, but the gotchas (the part
-that stops a wrong answer) live in the Skill.
+The Skill ships in two forms. The difference is YAML frontmatter, the
+[Agent Skills](https://agentskills.io) contract that a native reader needs to
+*discover* and *advertise* a skill:
 
-| Harness | Register the server | Deliver the Skill |
+- **Canonical** — `.claude/skills/cambridge-open-data/SKILL.md`, with the `name`
+  and `description` frontmatter. This is the drop-in for the native readers —
+  OpenCode, Claude Code, Antigravity, and Gemini CLI. It already lives in this
+  repo, so OpenCode and Claude Code pick it up the moment they open it; for the
+  others, copy it into the harness's skills directory (table below).
+- **Mirror** — `skills/cambridge-open-data/SKILL.md`, the same body with the
+  frontmatter removed, for harnesses that ingest a rules or agent file rather
+  than parse the skill contract (Cursor, Cline / Roo, Codex, and the like).
+
+::: warning The mirror is body-only
+A body-only skill has no `description`, and OpenCode advertises a skill only when
+it has one — so the mirror does **not** auto-discover in OpenCode. Use the
+canonical form there: OpenCode reads `.claude/skills` as a project source, or
+copy it to `.opencode/skills/<id>/SKILL.md`.
+:::
+
+| Harness | Register the server | Install the Skill |
 |---|---|---|
-| **opencode** | `opencode mcp add ...` → `opencode.json` | custom agent, or paste `SKILL.md` into the README/agent instructions |
-| **Claude Code** | `claude mcp add ...` | drop `.claude/skills/cambridge-open-data/` into the project or `~/.claude/skills/` |
-| **Antigravity** | `mcpServers` in `mcp_config.json` | native — reads `SKILL.md`; drop the mirror into `.agents/skills/` |
-| **Codex / Gemini CLI / others** | `codex mcp add ...` / `gemini mcp add ...` / config | paste the mirror's body into the harness's rules/agent file |
-| **Cursor** | `.cursor/mcp.json` | `.cursor/rules`, or paste `SKILL.md` |
-| **Cline / Roo** | settings / `.roo/mcp.json` | rules file, or paste `SKILL.md` |
+| **[OpenCode](https://opencode.ai/docs/skills/)** | `opencode mcp add ...` → `opencode.json` | canonical — read from `.claude/skills` in-repo; else copy to `.opencode/skills/<id>/` (project) or `~/.config/opencode/skills/<id>/` (global) |
+| **[Claude Code](https://code.claude.com/docs/en/skills)** | `claude mcp add ...` | canonical — read from `.claude/skills` in-repo; else copy to `.claude/skills/` (project) or `~/.claude/skills/` (personal) |
+| **[Antigravity](https://antigravity.google/docs/skills/)** | `mcpServers` in `mcp_config.json` | canonical — copy to `.agents/skills/` (workspace) or `~/.gemini/config/skills/` (global) |
+| **[Gemini CLI](https://geminicli.com/docs/cli/skills/)** | `gemini mcp add ...` | canonical — copy to `.gemini/skills/` or the `.agents/skills/` alias, or `gemini skills install <path>` |
+| **[Cursor](https://cursor.com/docs/rules)** | `.cursor/mcp.json` | mirror — paste the body into a `.cursor/rules/*.mdc` rule, or drop an `AGENTS.md` at the project root |
+| **[Cline / Roo](https://docs.cline.bot/customization/cline-rules)** | settings / `.roo/mcp.json` | mirror — paste the body into a `.clinerules/` (or `.cline/rules/`) file, or an `AGENTS.md` at the project root |
+| **Codex (OpenAI)** | `codex mcp add ...` | mirror — paste the body into an `AGENTS.md` at the project root ([AGENTS.md](https://agents.md/)) |
 
-## Verify
+## Verify the installation
 
-After registering, from the repo:
+You can run the smoke test which talks to the MCP server exactly as a harness would and confirms each tool and resource works end-to-end.
 
-```bash
-uv run scripts/mcp_smoke.py      # drives the live server over stdio
-uv run ruff check .              # lint the package
-```
-
-The smoke test talks to the server exactly as a harness would (over stdio) and confirms each tool
-and resource works end-to-end, including the JSON-serialisation boundary that trips up a naive
-MCP wrapper.
-
-It needs the local cache — the catalog plus the three raw datasets the coverage and cross-reference
-checks exercise — so a full run reports **14/14**:
+The catalog plus and three datasets are used in the testing. Use these commands to set these up:
 
 ```bash
-uv run scripts/refresh_catalog.py        # the catalog (if not already pulled)
-uv run scripts/fetch_dataset.py 9qm7-wbdc    # building permits — the coverage audit
-uv run scripts/fetch_dataset.py ixg8-tyau    # salaries — the cross-dataset SQL
-uv run scripts/fetch_dataset.py 5bn4-5wey    # operating budget — the wrong-name error
+cambridge-data refresh                  # the catalog (if not already pulled)
+cambridge-data fetch 9qm7-wbdc          # building permits — the coverage audit
+cambridge-data fetch ixg8-tyau          # salaries — the cross-dataset SQL
+cambridge-data fetch 5bn4-5wey          # operating budget — the wrong-name error
 ```
 
-On a fresh clone without that cache the cache-dependent checks **skip** (not fail) with a how-to
-banner, and the run still exits 0 — a skip is not a failure. The cache is gitignored and rebuildable,
-and the `data/raw/*.parquet` files can also be copied from the `local-data-experiments` repo.
+Then run the smoke test to see if 14 out of 14 tests pass:
+
+```bash
+uv run scripts/mcp_smoke.py
+```

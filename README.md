@@ -37,19 +37,24 @@ subcommands are `refresh`, `search`, `describe`, `fetch`, `coverage`, `audit`, `
 [uv](https://docs.astral.sh/uv/) is the recommended runner. From a clone of this repo:
 
 ```bash
-uv sync                      # install dependencies
-uv run scripts/refresh_catalog.py        # pull the 280+ dataset index (seconds)
-uv run scripts/mcp_smoke.py              # end-to-end check
+uv sync                                                   # install dependencies
+mkdir -p ~/.local/bin && ln -sf "$PWD/scripts/cambridge-data" ~/.local/bin/cambridge-data
+cambridge-data refresh        # pull the 280+ dataset index (seconds)
+uv run scripts/mcp_smoke.py   # end-to-end check
 ```
+
+> [!NOTE]
+> The `ln -sf` line puts the CLI on your `PATH`. Add `~/.local/bin` to your `PATH` if it isn't
+> already, and `cambridge-data` runs from any directory — no `uv run`, no repo-relative CWD.
 
 The smoke test drives the live server and, with a populated cache, returns a report of tests. To do
 this, three datasets need to be retrieved from the Portal, to create a catalog the smoke tests can run
 against:
 
 ```bash
-uv run scripts/fetch_dataset.py 9qm7-wbdc    # building permits — the coverage audit
-uv run scripts/fetch_dataset.py ixg8-tyau    # salaries — the cross-dataset SQL
-uv run scripts/fetch_dataset.py 5bn4-5wey    # operating budget — the wrong-name error
+cambridge-data fetch 9qm7-wbdc    # building permits — the coverage audit
+cambridge-data fetch ixg8-tyau    # salaries — the cross-dataset SQL
+cambridge-data fetch 5bn4-5wey    # operating budget — the wrong-name error
 ```
 
 ## Registering the MCP server
