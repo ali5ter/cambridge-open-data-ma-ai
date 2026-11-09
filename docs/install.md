@@ -34,15 +34,24 @@ An example of this JSON block can be seen in the `opencode.json` file.
 
 ### OpenCode (TUI, Desktop, Web)
 
-The `opencode.json` files in this project will register the MCP server for this project as soon as you run the OpenCode MCP.
-
-[OpenCode](https://opencode.ai) has a CLI that can also write the openCode global level configuration:
+If you run OpenCode **inside this repo**, the `opencode.json` at the project root
+already registers the server for this project — no setup needed. To make it available
+**outside this repo**, use the [OpenCode](https://opencode.ai) CLI to write the global
+configuration:
 
 ```bash
 opencode mcp add --global cambridge-open-data-ma-ai -- uv run cambridge-open-data-ma-mcp
 ```
 
-In the OpenCode TUI, run `/mcp` to list registered servers and confirm `cambridge-open-data-ma-ai` is connected.
+::: note Scope
+`opencode mcp add` without `--global` writes the project-scope `./opencode.json` (the
+entry the README table shows); with `--global` it writes the user-scope
+`~/.config/opencode/opencode.json`, so the server is registered for every project on the
+machine.
+:::
+
+In the OpenCode TUI, run `/mcp` to list registered servers and confirm
+`cambridge-open-data-ma-ai` is connected.
 
 ### Claude Code
 
